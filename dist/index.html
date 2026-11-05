@@ -1,8 +1,244 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#10192e"><title>별과 우주 · 기억 퀴즈</title><link rel="stylesheet" href="styles.css"><script defer src="core.js"></script><script defer src="questions.js"></script><script defer src="app.js"></script></head>
-<body><div class="shell">
- <header><div class="brand"><span class="logo" aria-hidden="true">✦</span><div><p class="eyebrow">SCIENCE MEMORY LAB</p><h1>별과 우주 <span>기억 퀴즈</span></h1></div></div><button id="recordsButton" class="record-button">오늘의 기록 <strong id="count">0 / 21</strong> ↗</button></header>
- <main><section class="board-panel" aria-label="글자 카드판"><div class="panel-heading"><div><span class="dot"></span> 기억 속 별을 찾아요</div><span>20 CARDS</span></div><div id="board" class="board"></div><div class="board-footer"><span>✧ 카드를 눌러 글자를 확인하세요</span><span>위치는 자유롭게 · 순서는 정확하게</span></div></section>
- <section class="question-panel"><div class="question-top"><span id="category" class="badge"></span><span id="progress"></span></div><div class="question-body"><p class="eyebrow">오늘의 탐구 문제</p><h2 id="question"></h2><div id="slots" class="slots" aria-label="선택한 정답 글자"></div><p id="feedback" role="status" aria-live="polite"></p></div><div class="question-bottom"><button id="next" class="primary" hidden>다음 문제로 →</button><p id="rule">틀리면 모든 카드가 다시 뒤집혀요.<br>기억한 위치에서 첫 글자부터 다시 도전!</p></div></section></main>
- <footer><span>중학교 과학 · 별과 우주</span><span id="storageStatus">기록은 이 기기의 브라우저에 저장돼요</span></footer>
-</div><dialog id="records"><div class="dialog-heading"><div><p class="eyebrow" id="recordDate"></p><h2>오늘의 발견</h2></div><button id="closeRecords" aria-label="오늘의 기록 닫기">✕</button></div><p class="record-summary">오늘 맞힌 문제 <strong id="recordCount"></strong></p><p class="record-note">같은 문제는 하루에 한 번만 집계해요.</p><ol id="recordList"></ol><p id="emptyRecords">아직 완료한 문제가 없어요. 첫 번째 별을 찾아볼까요?</p></dialog></body></html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#070a14">
+  <title>별과 우주 · 아케이드 기억 퀴즈</title>
+  <!-- Arcade Retro Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/galmuri/dist/galmuri.css">
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="core.js"></script>
+  <script defer src="questions.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <div class="crt-scanlines" aria-hidden="true"></div>
+  <canvas id="fxCanvas" class="fx-canvas" aria-hidden="true"></canvas>
+
+  <section id="intro" class="intro-screen" aria-labelledby="introTitle">
+    <div class="intro-starfield" aria-hidden="true">
+      <span class="intro-shooting-star" style="--x:22vw;--y:0vh;--duration:8.2s;--delay:-1.1s;--size:12px">✦</span>
+      <span class="intro-shooting-star" style="--x:43vw;--y:-8vh;--duration:6.6s;--delay:-3.7s;--size:18px">✦</span>
+      <span class="intro-shooting-star" style="--x:68vw;--y:-16vh;--duration:9.0s;--delay:-5.2s;--size:13px">✦</span>
+      <span class="intro-shooting-star" style="--x:88vw;--y:-10vh;--duration:7.4s;--delay:-1.9s;--size:20px">✦</span>
+      <span class="intro-shooting-star" style="--x:110vw;--y:0vh;--duration:8.6s;--delay:-6.4s;--size:15px">✦</span>
+      <span class="intro-shooting-star" style="--x:126vw;--y:12vh;--duration:7.8s;--delay:-3.2s;--size:11px">✦</span>
+      <span class="intro-shooting-star" style="--x:108vw;--y:35vh;--duration:6.9s;--delay:-0.8s;--size:17px">✦</span>
+      <span class="intro-shooting-star" style="--x:112vw;--y:64vh;--duration:9.4s;--delay:-7.1s;--size:13px">✦</span>
+      <span class="intro-shooting-star" style="--x:55vw;--y:-10vh;--duration:7.2s;--delay:-5.8s;--size:10px">✦</span>
+      <span class="intro-shooting-star" style="--x:95vw;--y:-14vh;--duration:8.8s;--delay:-4.3s;--size:16px">✦</span>
+      <span class="intro-shooting-star" style="--x:118vw;--y:22vh;--duration:10.2s;--delay:-8.6s;--size:12px">✦</span>
+      <span class="intro-shooting-star" style="--x:130vw;--y:48vh;--duration:8s;--delay:-2.4s;--size:19px">✦</span>
+    </div>
+    <div class="intro-cabinet">
+      <div class="intro-brand">
+      <p class="intro-eyebrow">★ ARCADE SCI-LAB · 1 PLAYER ★</p>
+      <div class="intro-planet" aria-hidden="true">✦</div>
+      <p class="intro-logo">SPACE<br>MEMORY</p>
+      <h1 id="introTitle">별과 우주 기억 퀴즈</h1>
+      <p class="intro-description">별과 우주의 비밀을 기억하고<br>21개의 미션을 클리어하세요!</p>
+      </div>
+      <div class="intro-controls">
+      <p class="intro-controls-title">HOW TO PLAY</p>
+      <ol class="intro-steps">
+        <li>문제를 읽고 <strong>Ready!</strong> 누르기</li>
+        <li>잠깐 공개되는 카드 위치 기억하기</li>
+        <li>정답 글자를 순서대로 찾기</li>
+      </ol>
+      <button id="gameStart" class="arcade-next-btn intro-start" autofocus>▶ Game Start</button>
+      <p class="intro-caption">PRESS START · 당신의 우주 탐험을 시작하세요</p>
+      </div>
+    </div>
+  </section>
+
+  <div id="gameScreen" class="shell" hidden>
+    <header class="arcade-header">
+      <div class="brand">
+        <div class="logo-box" aria-hidden="true">
+          <span class="logo-star">★</span>
+        </div>
+        <div>
+          <h1>별과 우주 <span class="arcade-sub">SPACE MEMORY</span></h1>
+          <p class="brand-credit">Made by 조광근</p>
+        </div>
+      </div>
+
+      <!-- Arcade HUD: Score / Elapsed time / Hi-Score -->
+      <div class="arcade-hud">
+        <div class="hud-item">
+          <span class="hud-label">SCORE</span>
+          <span id="scoreDisplay" class="hud-value hud-score">000000</span>
+        </div>
+        <div class="hud-item hud-time-item">
+          <span class="hud-label">누적 시간</span>
+          <span id="elapsedDisplay" class="hud-value hud-time" role="timer" aria-label="첫 문제부터 누적 경과 시간">00:00:00</span>
+        </div>
+        <div class="hud-item hud-high">
+          <span class="hud-label">HI-SCORE</span>
+          <span id="highScoreDisplay" class="hud-value hud-high-val">000000</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button id="restartButton" class="arcade-btn restart-btn" title="기존 기록을 보관하고 처음부터 다시 풀기">↻ 다시 도전</button>
+        <button id="soundToggle" class="arcade-btn sound-btn" aria-label="사운드 전환" title="사운드 켜기/끄기">
+          <span class="sound-icon">🔊</span> <span class="sound-text">SFX ON</span>
+        </button>
+        <button id="recordsButton" class="arcade-btn record-button">
+          <span class="rec-icon">🏆</span> 기록 <strong id="count">0 / 21</strong>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <!-- Left: Board Matrix -->
+      <section class="board-panel" aria-label="글자 카드판">
+        <div class="panel-heading">
+          <div class="panel-tag">
+            <span class="dot"></span>
+            <span class="arcade-tag-text">20 TILES MEMORY MATRIX</span>
+          </div>
+          <div class="stage-tag" id="stageTag">STAGE 01</div>
+        </div>
+
+        <div id="board" class="board"></div>
+
+        <div class="board-footer">
+          <span class="footer-tip">✧ 카드를 뒤집어 정답 단어를 찾으세요</span>
+          <span class="footer-credit">[ INSERT COIN : ∞ ]</span>
+        </div>
+      </section>
+
+      <!-- Right: Question Panel -->
+      <section class="question-panel" aria-label="문제 및 정답 패널">
+        <div class="question-top">
+          <span id="category" class="badge"></span>
+          <span id="progress" class="progress-badge"></span>
+        </div>
+
+        <div class="question-body">
+          <div class="directive-bar">
+            <span class="directive-icon">▶</span>
+            <span class="directive-title">MISSION DIRECTIVE</span>
+          </div>
+
+          <h2 id="question"></h2>
+
+          <div class="slots-wrapper">
+            <div class="slots-label">TARGET WORD</div>
+            <div id="slots" class="slots" aria-label="선택한 정답 글자"></div>
+          </div>
+
+          <div class="feedback-container">
+            <div class="feedback-screen">
+              <span class="feedback-indicator">SYS &gt;</span>
+              <p id="feedback" role="status" aria-live="polite">카드를 뒤집어 첫 번째 글자를 찾아보세요.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="question-bottom">
+          <section class="item-panel" aria-label="아이템 보관함">
+            <div class="item-heading"><span>POWER UPS</span><span id="itemCount">0 / 3</span></div>
+            <div id="itemSlots" class="item-slots"></div>
+            <p id="itemStatus" class="item-status" role="status">정답을 맞히면 50% 확률로 아이템 획득!</p>
+          </section>
+          <button id="ready" class="arcade-next-btn ready-btn" disabled>
+            Ready! <span class="ready-hint">카드 힌트 보기</span>
+          </button>
+          <button id="next" class="arcade-next-btn" disabled hidden>
+            <span class="next-star">★</span> NEXT STAGE → [ PRESS START ] <span class="next-star">★</span>
+          </button>
+          <div id="rule" class="arcade-rule-box">
+            <span class="rule-icon">⚡</span>
+            <p>틀리면 고정된 카드가 풀리고 처음부터 다시 찾아야 해요! 멈춤 없이 바로 첫 글자부터 다시 도전하세요.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <span>중학교 과학 · 별과 우주 [ RETRO ARCADE EDITION ]</span>
+      <span id="storageStatus">기록과 최고 점수는 이 기기 브라우저에 저장돼요</span>
+    </footer>
+  </div>
+
+  <dialog id="completion" class="completion-dialog" aria-labelledby="completionTitle">
+    <div class="completion-sparks" aria-hidden="true">✦ ★ ✧ ★ ✦</div>
+    <p class="completion-kicker">MISSION COMPLETE · 21 / 21</p>
+    <h2 id="completionTitle">ALL CLEAR!</h2>
+    <div class="completion-layout">
+      <div class="completion-medal">
+        <span class="completion-rank-label">YOUR RANK</span>
+        <strong id="completionGrade">S</strong>
+        <span id="completionRank"></span>
+      </div>
+      <div class="completion-details">
+        <p id="completionMessage"></p>
+        <div class="completion-stats">
+          <div><span>총 풀이 시간</span><strong id="completionTime"></strong></div>
+          <div><span>획득 점수</span><strong id="completionScore"></strong></div>
+        </div>
+        <p id="completionItems" class="item-record"></p>
+        <div class="completion-actions">
+          <button id="completionRestart" class="arcade-next-btn">↻ 다시 도전</button>
+          <button id="completionRecords" class="arcade-btn">오늘의 기록 보기</button>
+          <button id="completionReview" class="arcade-btn">계속 복습하기</button>
+        </div>
+      </div>
+    </div>
+    <p id="gradeCriteria" class="completion-criteria"></p>
+    <p class="completion-note">중3 학습용 게임의 추정 기준이며, 학교 성적과는 관계없어요.<br>문제를 읽는 시간과 Ready!·다음 문제 대기 시간도 포함돼요.</p>
+  </dialog>
+
+  <!-- Hall of Fame / Records Dialog -->
+  <dialog id="records" class="arcade-dialog">
+    <div class="dialog-bezel">
+      <div class="dialog-heading">
+        <div>
+          <p class="eyebrow" id="recordDate"></p>
+          <h2>★ HALL OF FAME ★</h2>
+          <p class="dialog-subtitle">오늘의 우주 탐구 발견 기록</p>
+        </div>
+        <button id="closeRecords" class="dialog-close-btn" aria-label="오늘의 기록 닫기">✕</button>
+      </div>
+
+      <div class="dialog-stats">
+        <div class="stat-card">
+          <span class="stat-title">클리어 문제</span>
+          <strong id="recordCount" class="stat-value">0 / 21</strong>
+        </div>
+        <div class="stat-card">
+          <span class="stat-title">최고 점수</span>
+          <strong id="dialogHighScore" class="stat-value">0 PTS</strong>
+        </div>
+        <div class="stat-card">
+          <span class="stat-title">누적 경과 시간</span>
+          <strong id="recordElapsed" class="stat-value stat-time">00:00:00</strong>
+        </div>
+        <div class="stat-card">
+          <span class="stat-title">전체 완료 시간</span>
+          <strong id="recordTotal" class="stat-value stat-time">진행 중</strong>
+        </div>
+      </div>
+
+      <p id="recordItems" class="item-record"></p>
+      <p class="record-rank">이번 도전 등급 <strong id="recordGrade">도전 중</strong></p>
+      <p class="record-note">✦ 같은 문제는 이번 도전의 첫 완료 시간만 저장돼요. 다시 도전하면 기존 기록은 아래에 보관돼요.<br>누적 시간은 첫 문제 표시부터 마지막 정답까지이며, 다음 문제 대기·페이지를 닫은 시간도 포함해요. 문제별 시간은 해당 문제 표시부터 정답까지예요.<br>예전 기록에 시간이 없으면 전체 완료 시간은 표시되지 않아요.</p>
+
+      <div class="record-list-wrap">
+        <ol id="recordList"></ol>
+        <p id="emptyRecords">아직 완료한 미션이 없어요.<br>첫 번째 별 카드를 뒤집어보세요!</p>
+        <section id="attemptHistorySection" hidden>
+          <h3>이전 도전 기록</h3>
+          <div id="attemptHistory"></div>
+        </section>
+      </div>
+    </div>
+  </dialog>
+</body>
+</html>
