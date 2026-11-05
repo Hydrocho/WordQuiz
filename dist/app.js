@@ -651,6 +651,7 @@
         board.classList.remove('is-previewing');
         locked = false;
         renderItems();
+        $('itemStatus').textContent = itemState.inventory.length ? '아이템 버튼을 눌러 사용할 수 있어요. 시간은 계속 흐릅니다.' : '정답을 맞히면 50% 확률로 아이템 획득!';
         SoundFX.playReadyGo();
         $('feedback').textContent = `★ START! [ ${current.answer.length}글자 ] 정답의 첫 글자를 터치하세요.`;
       }, 480);
