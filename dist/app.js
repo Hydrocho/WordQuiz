@@ -105,8 +105,8 @@
     } catch { return []; }
   }
 
-  function restartGame() {
-    if (!window.confirm('풀이 시간과 진행 상황을 초기화하고 첫 문제부터 다시 도전할까요?\n기존 기록은 오늘의 기록에 보관됩니다.')) return;
+  function restartGame(confirmRestart = true) {
+    if (confirmRestart !== false && !window.confirm('풀이 시간과 진행 상황을 초기화하고 첫 문제부터 다시 도전할까요?\n기존 기록은 오늘의 기록에 보관됩니다.')) return;
     syncDay();
     const previous = readHistory();
     const snapshot = {
@@ -1011,17 +1011,30 @@
   };
   let gameStarted = false;
   $('restartButton').onclick = restartGame;
-  $('gameStart').onclick = () => {
+  function startFromIntro(resume) {
     if (gameStarted) return;
+    syncDay();
+    // Game Start is a new attempt; only the explicit Continue action resumes a clock.
+    const hasPrevious = timing.startedAt !== null || completed.length > 0;
+    if (!resume && hasPrevious) {
+      if (!restartGame(false)) {
+        $('introStatus').textContent = '이전 기록을 저장하지 못해 시작하지 않았어요. 저장 공간을 확인하거나 이어하기를 선택해 주세요.';
+        return;
+      }
+    } else {
+      next();
+    }
     gameStarted = true;
     $('gameStart').disabled = true;
+    $('continueGame').disabled = true;
     $('intro').hidden = true;
     $('gameScreen').hidden = false;
     SoundFX.play('btn');
-    next();
     $('question').setAttribute('tabindex', '-1');
     $('question').focus();
-  };
+  }
+  $('gameStart').onclick = () => startFromIntro(false);
+  $('continueGame').onclick = () => startFromIntro(true);
   $('ready').onclick = () => {
     if ($('ready').disabled) return;
     $('ready').disabled = true;
@@ -1096,6 +1109,8 @@
   itemState = readItems();
   completed = read();
   timing = readTiming();
+  $('continueGame').hidden = timing.startedAt === null && !completed.length;
+  $('continueGame').textContent = completed.length === ids.length ? '이전 도전 기록 · 복습' : '이전 도전 이어하기';
   updateCount();
   updateHUD();
   renderItems();

@@ -1535,3 +1535,6 @@ footer {
  .item-button svg { width:24px;height:24px; }
 }
 @media (prefers-reduced-motion:reduce) { .item-awarded { animation:none; } }
+
+.intro-continue { margin: 12px auto 0; }
+.intro-continue[hidden] { display: none; }
