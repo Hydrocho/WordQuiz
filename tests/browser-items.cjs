@@ -26,7 +26,7 @@ const server=http.createServer((req,res)=>{
     localStorage.setItem('star-memory-sound','muted');
     localStorage.setItem(`star-memory-items-v1:${QuizCore.dayKey()}`,JSON.stringify({inventory:['reveal','hint','erase'],used:0,awarded:[]}));
    });
-   await page.reload();await page.locator(await page.locator('#continueGame').isVisible() ? '#continueGame' : '#gameStart').click();
+   await page.reload();await page.locator('#gameStart').click();
    assert.equal(await page.locator('.item-button:disabled').count(),3);
    await page.locator('#ready').click();await page.clock.runFor(5000);
    assert.equal(await page.locator('.item-button:not(:disabled)').count(),3);
@@ -64,8 +64,8 @@ const server=http.createServer((req,res)=>{
    await page.clock.runFor(5000);
    assert.equal(await page.locator('#itemCount').textContent(),'0 / 3');
    assert.equal(await page.locator('.card.is-flipped').count(),0);
-   await page.reload();await page.locator(await page.locator('#continueGame').isVisible() ? '#continueGame' : '#gameStart').click();
-   await page.locator('#recordsButton').click();assert.match(await page.locator('.past-attempt summary').textContent(),/아이템 4회/);
+   await page.reload();await page.locator('#gameStart').click();
+   await page.locator('#recordsButton').click();assert.match(await page.locator('.past-attempt summary').first().textContent(),/아이템 4회/);
    assert.deepEqual(errors,[]);
    console.log(base||'root','all three item effects, gating, random reward, usage, archive and restart passed');
    await context.close();

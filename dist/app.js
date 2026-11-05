@@ -1011,14 +1011,14 @@
   };
   let gameStarted = false;
   $('restartButton').onclick = restartGame;
-  function startFromIntro(resume) {
+  function startFromIntro() {
     if (gameStarted) return;
     syncDay();
-    // Game Start is a new attempt; only the explicit Continue action resumes a clock.
+    // Every Game Start begins a fresh attempt.
     const hasPrevious = timing.startedAt !== null || completed.length > 0;
-    if (!resume && hasPrevious) {
+    if (hasPrevious) {
       if (!restartGame(false)) {
-        $('introStatus').textContent = '이전 기록을 저장하지 못해 시작하지 않았어요. 저장 공간을 확인하거나 이어하기를 선택해 주세요.';
+        $('introStatus').textContent = '이전 기록을 저장하지 못해 시작하지 않았어요. 저장 공간을 확인한 뒤 다시 시작해 주세요.';
         return;
       }
     } else {
@@ -1026,15 +1026,13 @@
     }
     gameStarted = true;
     $('gameStart').disabled = true;
-    $('continueGame').disabled = true;
     $('intro').hidden = true;
     $('gameScreen').hidden = false;
     SoundFX.play('btn');
     $('question').setAttribute('tabindex', '-1');
     $('question').focus();
   }
-  $('gameStart').onclick = () => startFromIntro(false);
-  $('continueGame').onclick = () => startFromIntro(true);
+  $('gameStart').onclick = () => startFromIntro();
   $('ready').onclick = () => {
     if ($('ready').disabled) return;
     $('ready').disabled = true;
@@ -1109,8 +1107,6 @@
   itemState = readItems();
   completed = read();
   timing = readTiming();
-  $('continueGame').hidden = timing.startedAt === null && !completed.length;
-  $('continueGame').textContent = completed.length === ids.length ? '이전 도전 기록 · 복습' : '이전 도전 이어하기';
   updateCount();
   updateHUD();
   renderItems();

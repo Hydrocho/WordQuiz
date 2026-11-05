@@ -79,10 +79,7 @@ const server=http.createServer((req,res)=>{
    assert.equal(await page.locator('#elapsedDisplay').textContent(),'00:00:10');
    await page.locator('#next').click();
    await prepare();
-   const question=await page.locator('#question').textContent();
-   await page.reload();await page.locator(await page.locator('#continueGame').isVisible() ? '#continueGame' : '#gameStart').click();
-   assert.equal(await page.locator('#question').textContent(),question);
-   await prepare();
+   await page.clock.runFor(6000);
    const second=await solve();
    let saved=await page.evaluate(()=>JSON.parse(localStorage.getItem(`star-memory-timing-v1:${QuizCore.dayKey()}`)));
    assert.equal(saved.durations[first],6000);
@@ -112,11 +109,10 @@ const server=http.createServer((req,res)=>{
    await page.locator('#next').click();
    await prepare();await solve();
    assert.equal(await page.locator('#elapsedDisplay').textContent(),'00:02:16');
-   await page.reload();await page.locator(await page.locator('#continueGame').isVisible() ? '#continueGame' : '#gameStart').click();
    assert.equal(await page.locator('#elapsedDisplay').textContent(),'00:02:16');
    // A storage update from another tab must not replace this question's start.
    await page.evaluate(()=>localStorage.clear());
-   await page.reload();await page.locator(await page.locator('#continueGame').isVisible() ? '#continueGame' : '#gameStart').click();
+   await page.reload();await page.locator('#gameStart').click();
    const activeId=await page.evaluate(()=>{
     const key=`star-memory-timing-v1:${QuizCore.dayKey()}`;
     const t=JSON.parse(localStorage.getItem(key));
@@ -140,14 +136,14 @@ const server=http.createServer((req,res)=>{
     localStorage.setItem(`star-memory-v1:${QuizCore.dayKey()}`,JSON.stringify(QUESTIONS.map(q=>q.id)));
     localStorage.removeItem(`star-memory-timing-v1:${QuizCore.dayKey()}`);
    });
-   await page.reload();await page.locator(await page.locator('#continueGame').isVisible() ? '#continueGame' : '#gameStart').click();await page.locator('#recordsButton').click();
+   await page.evaluate(()=>window.dispatchEvent(new StorageEvent('storage',{key:`star-memory-v1:${QuizCore.dayKey()}`})));await page.locator('#recordsButton').click();
    assert.equal(await page.locator('#recordCount').textContent(),'21 / 21');
    assert.equal(await page.locator('#recordTotal').textContent(),'시간 기록 없음');
    assert.equal(await page.locator('.rec-time').first().textContent(),'풀이 시간: 시간 기록 없음');
    // Normal typewriter animation must finish before Ready is enabled.
    await page.emulateMedia({reducedMotion:'no-preference'});
    await page.evaluate(()=>localStorage.clear());
-   await page.reload();await page.locator(await page.locator('#continueGame').isVisible() ? '#continueGame' : '#gameStart').click();
+   await page.reload();await page.locator('#gameStart').click();
    assert.equal(await page.locator('#ready').isDisabled(),true);
    await page.clock.runFor(5000);
    assert.equal(await page.locator('#ready').isDisabled(),false);
@@ -164,7 +160,7 @@ const server=http.createServer((req,res)=>{
     localStorage.setItem(`star-memory-timing-v1:${date}`,JSON.stringify(timing));
     return timing;
    });
-   await page.reload();await page.locator(await page.locator('#continueGame').isVisible() ? '#continueGame' : '#gameStart').click();
+   await page.evaluate(()=>window.dispatchEvent(new StorageEvent('storage',{key:`star-memory-v1:${QuizCore.dayKey()}`})));
    page.once('dialog',dialog=>dialog.dismiss());
    await page.locator('#restartButton').click();
    assert.equal(await page.locator('#count').textContent(),'21 / 21');
@@ -180,7 +176,6 @@ const server=http.createServer((req,res)=>{
    assert.equal(archived[0].completed.length,21);
    await prepare();await solve();
    assert.equal(await page.locator('#count').textContent(),'1 / 21');
-   await page.reload();await page.locator(await page.locator('#continueGame').isVisible() ? '#continueGame' : '#gameStart').click();
    assert.equal(await page.locator('#count').textContent(),'1 / 21');
    await page.locator('#recordsButton').click();
    assert.equal(await page.locator('.past-attempt').count(),1);
@@ -189,7 +184,7 @@ const server=http.createServer((req,res)=>{
    assert.equal(await page.locator('.past-attempt li').count(),21);
    await page.locator('#closeRecords').click();
    // Restart during the hint must cancel callbacks from the old board.
-   await page.clock.runFor(2000);await page.locator('#ready').click();
+   await page.locator('#next').click();await page.clock.runFor(2000);await page.locator('#ready').click();
    await page.clock.runFor(220);
    page.once('dialog',dialog=>dialog.accept());await page.locator('#restartButton').click();
    await page.clock.runFor(6000);
@@ -208,7 +203,7 @@ const server=http.createServer((req,res)=>{
    // A new Game Start must not reuse a previous attempt's start time.
    await page.clock.runFor(60000);
    await page.reload();
-   assert.equal(await page.locator('#continueGame').isVisible(),true);
+   assert.equal(await page.locator('#continueGame').count(),0);
    const historyBefore=await page.evaluate(()=>JSON.parse(localStorage.getItem(`star-memory-history-v1:${QuizCore.dayKey()}`)).length);
    await page.locator('#gameStart').click();
    assert.equal(await page.locator('#elapsedDisplay').textContent(),'00:00:00');
