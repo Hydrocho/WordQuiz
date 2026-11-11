@@ -892,7 +892,7 @@
       C: ['우주 개척자', '끝까지 도전해 모든 문제를 해결했어요. 멋진 완주예요!'],
       D: ['불굴의 탐험가', `포기하지 않고 ${ids.length}문제를 완주했어요. 이제 한 번 더 도전해 볼까요?`]
     };
-    $('completionKicker').textContent = `MISSION COMPLETE · ${ids.length} / ${ids.length}`;
+    $('completionKicker').textContent = unit.title;
     $('completionGrade').textContent = grade ?? '★';
     $('completion').dataset.grade = grade ?? 'unknown';
     $('completionRank').textContent = grade ? messages[grade][0] : `${ids.length}개 미션 완주`;

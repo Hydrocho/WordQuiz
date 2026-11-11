@@ -1473,7 +1473,7 @@ footer {
 .completion-dialog[data-grade="C"] { --rank-color: #83f3bd; }
 .completion-dialog[data-grade="D"] { --rank-color: #ffb58c; }
 .completion-sparks { color: var(--rank-color); font-size: 24px; letter-spacing: 22px; animation: victory-spark 2s ease-in-out infinite alternate; }
-.completion-kicker { color: var(--neon-cyan); font-family: var(--font-arcade); font-size: 10px; line-height: 1.8; }
+.completion-kicker { color: var(--neon-cyan); font-family: var(--font-korean); font-size: clamp(20px, 3vw, 30px); font-weight: 700; line-height: 1.5; margin: 16px 0 12px; word-break: keep-all; text-shadow: 0 0 14px var(--neon-cyan-glow); }
 #completionTitle { min-height: 0; margin: 12px 0 26px; font-family: var(--font-arcade); font-size: clamp(24px, 5vw, 42px); color: var(--rank-color); text-shadow: 0 0 22px #ffd45b70; }
 .completion-layout { display: grid; grid-template-columns: 1fr 1.4fr; align-items: center; gap: 30px; }
 .completion-medal { display: flex; flex-direction: column; align-items: center; justify-content: center; aspect-ratio: 1; max-width: 270px; width: 100%; margin: auto; border: 3px double var(--rank-color); border-radius: 50%; background: repeating-conic-gradient(from 0deg, #ffffff09 0deg 12deg, transparent 12deg 24deg); box-shadow: 0 0 35px #ffd45b25; }

@@ -51,7 +51,7 @@ const server=http.createServer((req,res)=>{
  }
  await page.clock.runFor(2000);
  assert.equal(await page.locator('#completion').isVisible(),true);
- assert.equal(await page.locator('#completionKicker').textContent(),'MISSION COMPLETE · 23 / 23');
+ assert.equal(await page.locator('#completionKicker').textContent(),'8. 과학 기술과 인류 문명');
  assert.equal(await page.evaluate(()=>localStorage.getItem(`star-memory-v1:${QuizCore.dayKey()}`)),'[1,2]');
  assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem(`star-memory-v1:${QuizCore.dayKey()}:unit-8`)).length),23);
  await page.locator('#completionRecords').click();
