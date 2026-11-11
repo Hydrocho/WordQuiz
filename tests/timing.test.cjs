@@ -34,11 +34,23 @@ for (const path of ['../../core.js','../dist/core.js']) {
 }
 
 for (const path of ['../../core.js','../dist/core.js']) {
- const {completionGrade}=require(path);
+ const {completionGrade,gradeLimits}=require(path);
+ test(`${path}: S cutoff rounds minutes for each unit size`,()=>{
+  for(const [count,minutes] of [[1,1],[21,7],[22,7],[23,8],[24,8],[25,8],[26,9],[60,20]]) {
+   const ids=Array.from({length:count},(_,i)=>i+1);
+   const durations=Object.fromEntries(ids.map(id=>[id,0]));
+   assert.deepEqual(gradeLimits(count)[0],['S',minutes]);
+   assert.equal(completionGrade(ids,{startedAt:0,finishedAt:minutes*60000,durations},ids),'S');
+   assert.notEqual(completionGrade(ids,{startedAt:0,finishedAt:minutes*60000+1,durations},ids),'S');
+   const limits=gradeLimits(count);
+   assert.ok(limits.every(([,value],i)=>i===0||value>limits[i-1][1]));
+  }
+ });
  test(`${path}: grades exact cutoffs and rejects incomplete or unknown timings`,()=>{
-  const ids=[1,2];
+  const ids=Array.from({length:21},(_,i)=>i+1);
+  const durations=Object.fromEntries(ids.map(id=>[id,0]));
   for(const [ms,expected] of [[0,'S'],[420000,'S'],[420001,'A'],[600000,'A'],[600001,'B'],[840000,'B'],[840001,'C'],[1080000,'C'],[1080001,'D']]) {
-   assert.equal(completionGrade(ids,{startedAt:1000,finishedAt:1000+ms,durations:{1:0,2:0}},ids),expected);
+   assert.equal(completionGrade(ids,{startedAt:1000,finishedAt:1000+ms,durations},ids),expected);
   }
   assert.equal(completionGrade([1],{startedAt:0,finishedAt:5000,durations:{1:1,2:1}},ids),null);
   assert.equal(completionGrade(ids,{startedAt:0,finishedAt:null,durations:{1:1,2:1}},ids),null);

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#070a14">
-  <title>별과 우주 · 아케이드 기억 퀴즈</title>
+  <title>과학 · 아케이드 기억 퀴즈</title>
   <!-- Arcade Retro Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -38,11 +38,13 @@
       <div class="intro-brand">
       <p class="intro-eyebrow">★ ARCADE SCI-LAB · 1 PLAYER ★</p>
       <div class="intro-planet" aria-hidden="true">✦</div>
-      <p class="intro-logo">SPACE<br>MEMORY</p>
-      <h1 id="introTitle">별과 우주 기억 퀴즈</h1>
-      <p class="intro-description">별과 우주의 비밀을 기억하고<br>21개의 미션을 클리어하세요!</p>
+      <p class="intro-logo">SCIENCE<br>MEMORY</p>
+      <h1 id="introTitle">과학 기억 퀴즈</h1>
+      <p id="introDescription" class="intro-description"></p>
       </div>
       <div class="intro-controls">
+      <label class="unit-label" for="unitSelect">도전할 단원 선택</label>
+      <select id="unitSelect" class="unit-select" aria-describedby="introDescription"></select>
       <p class="intro-controls-title">HOW TO PLAY</p>
       <ol class="intro-steps">
         <li>문제를 읽고 <strong>Ready!</strong> 누르기</li>
@@ -51,7 +53,7 @@
       </ol>
       <button id="gameStart" class="arcade-next-btn intro-start" autofocus>▶ Game Start</button>
       <p id="introStatus" class="intro-caption" role="status">Game Start는 첫 문제부터 0초로 새로 시작합니다.</p>
-      <p class="intro-caption">PRESS START · 당신의 우주 탐험을 시작하세요</p>
+      <p class="intro-caption">PRESS START · 과학 탐험을 시작하세요</p>
       </div>
     </div>
   </section>
@@ -63,28 +65,25 @@
           <span class="logo-star">★</span>
         </div>
         <div>
-          <h1>별과 우주 <span class="arcade-sub">SPACE MEMORY</span></h1>
+          <h1 id="gameTitle">7. 별과 우주</h1>
           <p class="brand-credit">Made by 조광근</p>
         </div>
       </div>
 
-      <!-- Arcade HUD: Score / Elapsed time / Hi-Score -->
+      <!-- Arcade HUD: Elapsed time / S rank target -->
       <div class="arcade-hud">
-        <div class="hud-item">
-          <span class="hud-label">SCORE</span>
-          <span id="scoreDisplay" class="hud-value hud-score">000000</span>
-        </div>
         <div class="hud-item hud-time-item">
-          <span class="hud-label">누적 시간</span>
+          <span class="hud-label">TIME</span>
           <span id="elapsedDisplay" class="hud-value hud-time" role="timer" aria-label="첫 문제부터 누적 경과 시간">00:00:00</span>
         </div>
-        <div class="hud-item hud-high">
-          <span class="hud-label">HI-SCORE</span>
-          <span id="highScoreDisplay" class="hud-value hud-high-val">000000</span>
+        <div class="hud-item hud-target-item">
+          <span class="hud-label">★ S RANK TARGET</span>
+          <span id="sRankTarget" class="hud-value hud-target" aria-label="S등급 목표 시간 7분 이내">07:00</span>
         </div>
       </div>
 
       <div class="header-actions">
+        <button id="changeUnit" class="arcade-btn">단원 선택</button>
         <button id="restartButton" class="arcade-btn restart-btn" title="기존 기록을 보관하고 처음부터 다시 풀기">↻ 다시 도전</button>
         <button id="soundToggle" class="arcade-btn sound-btn" aria-label="사운드 전환" title="사운드 켜기/끄기">
           <span class="sound-icon">🔊</span> <span class="sound-text">SFX ON</span>
@@ -163,14 +162,14 @@
     </main>
 
     <footer>
-      <span>중학교 과학 · 별과 우주 [ RETRO ARCADE EDITION ]</span>
+      <span>중학교 과학 [ RETRO ARCADE EDITION ]</span>
       <span id="storageStatus">기록과 최고 점수는 이 기기 브라우저에 저장돼요</span>
     </footer>
   </div>
 
   <dialog id="completion" class="completion-dialog" aria-labelledby="completionTitle">
     <div class="completion-sparks" aria-hidden="true">✦ ★ ✧ ★ ✦</div>
-    <p class="completion-kicker">MISSION COMPLETE · 21 / 21</p>
+    <p id="completionKicker" class="completion-kicker">MISSION COMPLETE · 21 / 21</p>
     <h2 id="completionTitle">ALL CLEAR!</h2>
     <div class="completion-layout">
       <div class="completion-medal">
@@ -203,7 +202,7 @@
         <div>
           <p class="eyebrow" id="recordDate"></p>
           <h2>★ HALL OF FAME ★</h2>
-          <p class="dialog-subtitle">오늘의 우주 탐구 발견 기록</p>
+          <p class="dialog-subtitle">선택한 단원의 오늘 기록</p>
         </div>
         <button id="closeRecords" class="dialog-close-btn" aria-label="오늘의 기록 닫기">✕</button>
       </div>

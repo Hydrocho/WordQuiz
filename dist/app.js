@@ -1,9 +1,10 @@
 (()=>{
   'use strict';
-  const {shuffle, makeBoard, pick, cleanRecords, dayKey, cleanTiming, beginTiming, finishTiming, elapsedTiming, formatDuration, completionGrade, GRADE_LIMITS, cleanItems, awardItem} = QuizCore;
+  const {shuffle, makeBoard, pick, cleanRecords, dayKey, cleanTiming, beginTiming, finishTiming, elapsedTiming, formatDuration, completionGrade, gradeLimits, cleanItems, awardItem} = QuizCore;
   const $ = id => document.getElementById(id);
-  const questions = window.QUESTIONS;
-  const ids = questions.map(q => q.id);
+  let unit = window.UNITS[0];
+  let questions = unit.questions;
+  let ids = questions.map(q => q.id);
 
   let today = dayKey(), completed = [], memory = {}, queue = [], current, cards = [], selected = [], locked = false, timer, round = 0;
   let score = 0, combo = 0, highScore = 0;
@@ -12,13 +13,14 @@
   let timing = cleanTiming(null, ids);
   const timingMemory = {};
   let attemptId = '';
-  const attemptKey = () => `star-memory-attempt-v1:${today}`;
-  const historyKey = () => `star-memory-history-v1:${today}`;
+  const unitSuffix = () => unit.id === '7' ? '' : `:unit-${unit.id}`;
+  const attemptKey = () => `star-memory-attempt-v1:${today}${unitSuffix()}`;
+  const historyKey = () => `star-memory-history-v1:${today}${unitSuffix()}`;
   const attemptSuffix = () => attemptId ? `:${attemptId}` : '';
-  const memoryKey = () => today + attemptSuffix();
-  const timingKey = () => `star-memory-timing-v1:${today}${attemptSuffix()}`;
+  const memoryKey = () => today + unitSuffix() + attemptSuffix();
+  const timingKey = () => `star-memory-timing-v1:${today}${unitSuffix()}${attemptSuffix()}`;
 
-  const itemKey = () => `star-memory-items-v1:${today}${attemptSuffix()}`;
+  const itemKey = () => `star-memory-items-v1:${today}${unitSuffix()}${attemptSuffix()}`;
   let itemState = cleanItems(null, ids), itemTimer = null;
   const itemMemory = {};
   const itemDefinitions = {
@@ -85,7 +87,7 @@
     if(reward.item){$('itemSlots').classList.remove('item-awarded');void $('itemSlots').offsetWidth;$('itemSlots').classList.add('item-awarded');}
   }
 
-  const key = () => `star-memory-v1:${today}${attemptSuffix()}`;
+  const key = () => `star-memory-v1:${today}${unitSuffix()}${attemptSuffix()}`;
   function readAttemptId() {
     try {
       const value = localStorage.getItem(attemptKey());
@@ -140,7 +142,7 @@
     $('question').focus();
     return true;
   }
-  const highScoreKey = () => `star-memory-highscore`;
+  const highScoreKey = () => `star-memory-highscore${unitSuffix()}`;
   const soundKey = () => `star-memory-sound`;
 
   // ==========================================================================
@@ -445,9 +447,9 @@
   }
 
   function updateHUD() {
-    const pad = num => String(num).padStart(6, '0');
-    if ($('scoreDisplay')) $('scoreDisplay').textContent = pad(score);
-    if ($('highScoreDisplay')) $('highScoreDisplay').textContent = pad(highScore);
+    const targetMinutes = gradeLimits(ids.length)[0][1];
+    $('sRankTarget').textContent = `${String(targetMinutes).padStart(2, '0')}:00`;
+    $('sRankTarget').setAttribute('aria-label', `S등급 목표 시간 ${targetMinutes}분 이내`);
     updateTimer();
   }
 
@@ -507,7 +509,7 @@
   }
 
   function updateCount() {
-    $('count').textContent = `${completed.length} / 21`;
+    $('count').textContent = `${completed.length} / ${ids.length}`;
   }
 
   function save() {
@@ -834,8 +836,10 @@
     syncDay();
 
     if (!queue.length) {
-      queue = shuffle(questions.filter(q => !completed.includes(q.id)));
-      if (!queue.length) queue = shuffle(questions);
+      const remaining = questions.filter(q => !completed.includes(q.id));
+      const pool = remaining.length ? remaining : questions;
+      // pop() consumes the end: reverse numeric order gives unit 8 ascending IDs.
+      queue = unit.id === '8' ? [...pool].sort((a, b) => b.id - a.id) : shuffle(pool);
       round = 0;
     }
 
@@ -852,7 +856,7 @@
     locked = true;
 
     $('category').textContent = current.category;
-    $('progress').textContent = `${completed.length === 21 ? 'ALL CLEAR 복습' : 'STAGE'} · ${round} / 21`;
+    $('progress').textContent = `${completed.length === ids.length ? 'ALL CLEAR 복습' : 'STAGE'} · ${round} / ${ids.length}`;
     if ($('stageTag')) $('stageTag').textContent = `STAGE ${String(round).padStart(2, '0')}`;
 
     $('next').disabled = true;
@@ -882,20 +886,22 @@
   function showCompletion() {
     const grade = completionGrade(completed, timing, ids);
     const messages = {
-      S: ['우주의 마스터', '눈부신 기억력! 별과 우주 미션을 빠르게 정복했어요.'],
+      S: ['우주의 마스터', '눈부신 기억력! 선택한 단원의 미션을 빠르게 정복했어요.'],
       A: ['은하 탐험의 에이스', '정확한 기억과 꾸준한 집중으로 멋지게 완주했어요.'],
-      B: ['별빛 탐험가', '21개의 미션 성공! 다음 도전에서 기록을 줄여 보세요.'],
+      B: ['별빛 탐험가', `${ids.length}개의 미션 성공! 다음 도전에서 기록을 줄여 보세요.`],
       C: ['우주 개척자', '끝까지 도전해 모든 문제를 해결했어요. 멋진 완주예요!'],
-      D: ['불굴의 탐험가', '포기하지 않고 21문제를 완주했어요. 이제 한 번 더 도전해 볼까요?']
+      D: ['불굴의 탐험가', `포기하지 않고 ${ids.length}문제를 완주했어요. 이제 한 번 더 도전해 볼까요?`]
     };
+    $('completionKicker').textContent = `MISSION COMPLETE · ${ids.length} / ${ids.length}`;
     $('completionGrade').textContent = grade ?? '★';
     $('completion').dataset.grade = grade ?? 'unknown';
-    $('completionRank').textContent = grade ? messages[grade][0] : '21개 미션 완주';
+    $('completionRank').textContent = grade ? messages[grade][0] : `${ids.length}개 미션 완주`;
     $('completionMessage').textContent = grade ? messages[grade][1] : '모든 문제를 해결했어요! 이전 문제의 시간 정보가 없어 등급은 계산하지 않았어요.';
     $('completionTime').textContent = grade ? formatDuration(elapsedTiming(timing, timing.finishedAt)) : '시간 기록 없음';
     $('completionItems').textContent = `아이템 사용 ${itemState.used}회`;
     $('completionScore').textContent = `${score.toLocaleString()} PTS`;
-    $('gradeCriteria').textContent = GRADE_LIMITS.map(([label,minutes],i)=>`${label} ${i ? GRADE_LIMITS[i-1][1]+'분 초과 ~ ' : ''}${minutes}분 이내`).join(' · ') + ' · D 18분 초과';
+    const limits = gradeLimits(ids.length);
+    $('gradeCriteria').textContent = limits.map(([label,minutes],i)=>`${label} ${i ? limits[i-1][1]+'분 초과 ~ ' : ''}${minutes}분 이내`).join(' · ') + ` · D ${limits[limits.length-1][1]}분 초과`;
     if (!$('completion').open) $('completion').showModal();
   }
 
@@ -904,8 +910,8 @@
     $('recordItems').textContent = `이번 도전 아이템 사용 ${itemState.used}회`;
     completed = cleanRecords([...read(), ...completed], ids);
     updateCount();
-    $('recordDate').textContent = today.replaceAll('-', ' . ');
-    $('recordCount').textContent = `${completed.length} / 21`;
+    $('recordDate').textContent = today.replaceAll('-', ' . ') + ' · ' + unit.title;
+    $('recordCount').textContent = `${completed.length} / ${ids.length}`;
     updateTimer();
     if ($('dialogHighScore')) $('dialogHighScore').textContent = `${highScore.toLocaleString()} PTS`;
 
@@ -1013,7 +1019,19 @@
   $('restartButton').onclick = restartGame;
   function startFromIntro() {
     if (gameStarted) return;
-    syncDay();
+    unit = window.UNITS.find(entry => entry.id === $('unitSelect').value) || window.UNITS[0];
+    questions = unit.questions;
+    ids = questions.map(q => q.id);
+    today = dayKey();
+    attemptId = '';
+    attemptId = readAttemptId();
+    completed = read();
+    timing = readTiming();
+    itemState = readItems();
+    highScore = readHighScore();
+    updateCount();
+    updateHUD();
+    $('gameTitle').textContent = unit.title;
     // Every Game Start begins a fresh attempt.
     const hasPrevious = timing.startedAt !== null || completed.length > 0;
     if (hasPrevious) {
@@ -1032,6 +1050,20 @@
     $('question').setAttribute('tabindex', '-1');
     $('question').focus();
   }
+  $('unitSelect').replaceChildren(...window.UNITS.map(entry => {
+    const option = document.createElement('option');
+    option.value = entry.id;
+    option.textContent = `${entry.title} · ${entry.questions.length}문제`;
+    return option;
+  }));
+  $('unitSelect').onchange = () => {
+    const entry = window.UNITS.find(entry => entry.id === $('unitSelect').value);
+    $('introDescription').textContent = `${entry.title} · ${entry.questions.length}개의 미션에 도전하세요!`;
+  };
+  $('unitSelect').onchange();
+  $('changeUnit').onclick = () => {
+    if (window.confirm('단원 선택 화면으로 돌아갈까요? 현재 기록은 저장되며, 다음 시작은 새로운 도전으로 진행됩니다.')) window.location.reload();
+  };
   $('gameStart').onclick = () => startFromIntro();
   $('ready').onclick = () => {
     if ($('ready').disabled) return;

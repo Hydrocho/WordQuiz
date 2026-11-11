@@ -183,7 +183,7 @@ h1 {
   text-shadow: 0 0 8px var(--neon-gold-glow);
 }
 
-/* Center HUD: Score / Combo / Hi-Score */
+/* Center HUD: Elapsed time / S rank target */
 .arcade-hud {
   display: flex;
   align-items: center;
@@ -216,14 +216,9 @@ h1 {
   color: #ffffff;
 }
 
-.hud-score {
+.hud-target {
   color: var(--neon-gold);
   text-shadow: 0 0 10px var(--neon-gold-glow);
-}
-
-.hud-high-val {
-  color: var(--neon-cyan);
-  text-shadow: 0 0 8px var(--neon-cyan-glow);
 }
 
 .hud-time {
@@ -418,7 +413,7 @@ main {
   border-radius: 12px;
 }
 
-/* Hover Lift on Back */
+/* Hover Lift on Back (only when not flipped and not disabled) */
 @media (hover: hover) {
   .card:not(.is-flipped):not(:disabled):hover .card-inner {
     transform: translateY(-3px) scale(1.02);
@@ -1199,12 +1194,6 @@ footer {
   }
 }
 
-@media (max-width: 900px) {
-  .arcade-hud .hud-high {
-    display: none;
-  }
-}
-
 @media (max-width: 767px) {
   .shell {
     height: auto;
@@ -1535,3 +1524,26 @@ footer {
  .item-button svg { width:24px;height:24px; }
 }
 @media (prefers-reduced-motion:reduce) { .item-awarded { animation:none; } }
+
+/* Unit selection */
+.unit-label { display:block; text-align:left; color:var(--neon-cyan); font-size:14px; margin-bottom:10px; }
+.unit-select { width:100%; min-width:0; padding:12px 8px; border:1px solid var(--neon-cyan); border-radius:8px; background:#101b34; color:#fff; font:13px var(--font-korean); }
+.unit-select:focus-visible { outline:3px solid var(--neon-gold); outline-offset:3px; }
+#gameTitle { font-size:clamp(14px, 1.6vw, 22px); }
+@media (orientation:landscape) and (max-height:600px) {
+ .intro-controls-title { margin:10px 0; }
+ .intro-steps { margin:8px auto; }
+ .intro-start { margin-top:10px; }
+ .unit-label { margin-bottom:5px; font-size:12px; }
+ .unit-select { padding:8px 4px; font-size:12px; }
+}
+
+@media (orientation:landscape) and (max-height:600px) {
+ .intro-cabinet { padding:12px 22px; }
+ .intro-controls-title { font-size:10px; margin:8px 0; }
+ .intro-steps { font-size:11px; line-height:1.6; margin:6px auto; }
+ .intro-start { min-height:40px; padding:10px; margin-top:8px; }
+ .intro-caption { margin:5px 0; line-height:1.5; }
+}
+
+.hud-target, .hud-label { white-space: nowrap; }

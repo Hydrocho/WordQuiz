@@ -45,10 +45,15 @@
   return [Math.floor(seconds/3600),Math.floor(seconds/60)%60,seconds%60].map(n=>String(n).padStart(2,'0')).join(':');
  }
  const GRADE_LIMITS=[['S',7],['A',10],['B',14],['C',18]];
+ function gradeLimits(questionCount){
+  const sMinutes=Math.max(1,Math.round(questionCount/3));
+  // Keep other cutoffs; omit empty ranges if a future unit has a longer S limit.
+  return [['S',sMinutes],...GRADE_LIMITS.slice(1).filter(([,minutes])=>minutes>sMinutes)];
+ }
  function completionGrade(completed,timing,ids){
   if(cleanRecords(completed,ids).length!==ids.length || !ids.length || timing.startedAt===null || timing.finishedAt===null || !ids.every(id=>validTime(timing.durations[id])))return null;
   const elapsed=elapsedTiming(timing,timing.finishedAt);
-  return GRADE_LIMITS.find(([,minutes])=>elapsed<=minutes*60000)?.[0]??'D';
+  return gradeLimits(ids.length).find(([,minutes])=>elapsed<=minutes*60000)?.[0]??'D';
  }
  const ITEM_TYPES=['reveal','hint','erase'];
  function cleanItems(raw,ids){
@@ -62,6 +67,6 @@
   if(item)next.inventory.push(item);
   return {state:next,item};
  }
- const api={shuffle,makeBoard,pick,cleanRecords,dayKey,cleanTiming,beginTiming,finishTiming,elapsedTiming,formatDuration,completionGrade,GRADE_LIMITS,cleanItems,awardItem};
+ const api={shuffle,makeBoard,pick,cleanRecords,dayKey,cleanTiming,beginTiming,finishTiming,elapsedTiming,formatDuration,completionGrade,GRADE_LIMITS,gradeLimits,cleanItems,awardItem};
  if(typeof module!=='undefined')module.exports=api;else root.QuizCore=api;
 })(globalThis);
