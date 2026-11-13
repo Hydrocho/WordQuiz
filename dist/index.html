@@ -52,7 +52,7 @@
         <li>정답 글자를 순서대로 찾기</li>
       </ol>
       <button id="gameStart" class="arcade-next-btn intro-start" autofocus>▶ Game Start</button>
-      <p id="introStatus" class="intro-caption" role="status">Game Start는 첫 문제부터 0초로 새로 시작합니다.</p>
+      <p id="introStatus" class="intro-caption" role="status">퀴즈 중 화면을 떠났다가 돌아올 때마다 누적 시간에 3분이 추가됩니다.</p>
       <p class="intro-caption">PRESS START · 과학 탐험을 시작하세요</p>
       </div>
     </div>
@@ -166,6 +166,14 @@
       <span id="storageStatus">기록과 최고 점수는 이 기기 브라우저에 저장돼요</span>
     </footer>
   </div>
+
+  <dialog id="returnWarning" class="arcade-dialog" aria-labelledby="returnWarningTitle" aria-describedby="returnWarningMessage">
+    <div class="dialog-bezel">
+      <h2 id="returnWarningTitle">화면 이탈 경고</h2>
+      <p id="returnWarningMessage">퀴즈 화면을 떠났다가 돌아와 누적 시간에 3분이 추가되었습니다.</p>
+      <form method="dialog"><button class="arcade-btn" autofocus>확인하고 계속 풀기</button></form>
+    </div>
+  </dialog>
 
   <dialog id="completion" class="completion-dialog" aria-labelledby="completionTitle">
     <div class="completion-sparks" aria-hidden="true">✦ ★ ✧ ★ ✦</div>

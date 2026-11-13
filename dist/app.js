@@ -463,6 +463,7 @@
 
   function saveTiming() {
     const stored = readTiming();
+    timing.returnCount = Math.max(timing.returnCount, stored.returnCount);
     // Keep the first completion from another open tab, too.
     timing.durations = { ...timing.durations, ...stored.durations };
     if (stored.startedAt !== null) timing.startedAt = Math.min(timing.startedAt ?? stored.startedAt, stored.startedAt);
@@ -1091,12 +1092,26 @@
     if (e.target === $('records')) $('records').close();
   });
 
+  let hiddenAttempt = null;
   document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) {
-      syncDay();
-      completed = cleanRecords([...read(), ...completed], ids);
-      updateCount();
+    if (document.hidden) {
+      if (gameStarted && timing.startedAt !== null && timing.finishedAt === null) {
+        hiddenAttempt = timingKey();
+      }
+      return;
     }
+    const previousAttempt = hiddenAttempt;
+    hiddenAttempt = null;
+    syncDay();
+    completed = cleanRecords([...read(), ...completed], ids);
+    updateCount();
+    if (previousAttempt !== timingKey() || attemptId !== readAttemptId() ||
+        completed.length === ids.length || timing.finishedAt !== null) return;
+    const stored = readTiming();
+    if (stored.finishedAt !== null) return;
+    timing.returnCount = Math.max(timing.returnCount, stored.returnCount) + 1;
+    saveTiming();
+    if (!$('returnWarning').open) $('returnWarning').showModal();
   });
 
   window.addEventListener('storage', event => {

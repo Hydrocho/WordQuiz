@@ -18,7 +18,7 @@ for (const path of ['../../core.js','../dist/core.js']) {
  });
  test(`${path}: rejects malformed timing while keeping zero-second completions`,()=>{
   const t=core.cleanTiming({startedAt:'oops',finishedAt:10,active:{id:99,startedAt:5},durations:{1:0,2:-1,3:'100',99:30}},[1,2,3]);
-  assert.deepEqual(t,{startedAt:null,finishedAt:null,active:null,durations:{1:0}});
+  assert.deepEqual(t,{startedAt:null,finishedAt:null,active:null,durations:{1:0},returnCount:0});
   assert.deepEqual(core.cleanTiming([], [1]).durations,{});
   assert.equal(core.formatDuration(3661000),'01:01:01');
   assert.equal(core.formatDuration(0),'00:00:00');
@@ -57,3 +57,13 @@ for (const path of ['../../core.js','../dist/core.js']) {
   assert.equal(completionGrade(ids,{startedAt:0,finishedAt:5000,durations:{1:1}},ids),null);
  });
 }
+
+test('return penalties survive a saved result and affect the grade',()=>{
+ const core=require('../../core.js');
+ const ids=Array.from({length:21},(_,i)=>i+1);
+ const durations=Object.fromEntries(ids.map(id=>[id,1000]));
+ const saved=core.cleanTiming({startedAt:0,finishedAt:300000,durations,returnCount:2},ids);
+ assert.equal(core.elapsedTiming(saved,900000),660000);
+ assert.equal(core.completionGrade(ids,saved,ids),'B');
+ assert.equal(saved.durations[1],1000);
+});

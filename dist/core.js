@@ -25,7 +25,8 @@
   for(const id of ids) if(validTime(raw.durations?.[id])) durations[id]=raw.durations[id];
   const active=finishedAt===null&&startedAt!==null&&ids.includes(raw.active?.id)&&validTime(raw.active?.startedAt)&&raw.active.startedAt>=startedAt
    ?{id:raw.active.id,startedAt:raw.active.startedAt}:null;
-  return {startedAt,finishedAt,active,durations};
+  const returnCount = Number.isSafeInteger(raw.returnCount) && raw.returnCount > 0 ? raw.returnCount : 0;
+  return {startedAt,finishedAt,active,durations,returnCount};
  }
  function beginTiming(timing,id,now){
   if(timing.finishedAt!==null)return timing;
@@ -39,7 +40,7 @@
    durations[id]=Math.max(0,now-timing.active.startedAt);
   return {...timing,durations,active:null,finishedAt:allCompleted?Math.max(timing.startedAt??now,now):null};
  }
- const elapsedTiming=(timing,now)=>timing.startedAt===null?0:Math.max(0,(timing.finishedAt??now)-timing.startedAt);
+ const elapsedTiming=(timing,now)=>timing.startedAt===null?0:Math.max(0,(timing.finishedAt??now)-timing.startedAt) + (timing.returnCount ?? 0) * 180000;
  function formatDuration(ms){
   const seconds=Math.floor(Math.max(0,ms)/1000);
   return [Math.floor(seconds/3600),Math.floor(seconds/60)%60,seconds%60].map(n=>String(n).padStart(2,'0')).join(':');
