@@ -1146,4 +1146,106 @@
     syncDay();
     updateTimer();
   }, 250);
+
+  // ==========================================================================
+  // SCREEN CAPTURE & SHORTCUT DEFENSE
+  // ==========================================================================
+  const guard = $('screenGuard');
+  let guardTimer = null;
+
+  function setScreenGuard(active, temporaryMs = 0) {
+    if (!guard) return;
+    clearTimeout(guardTimer);
+    guardTimer = null;
+
+    if (active) {
+      document.body.classList.add('screen-protected');
+      guard.hidden = false;
+      if (temporaryMs > 0) {
+        guardTimer = setTimeout(() => {
+          if (document.hasFocus() && document.visibilityState === 'visible') {
+            setScreenGuard(false);
+          }
+        }, temporaryMs);
+      }
+    } else {
+      document.body.classList.remove('screen-protected');
+      guard.hidden = true;
+    }
+  }
+
+  if (guard) {
+    guard.addEventListener('click', () => {
+      window.focus();
+      setScreenGuard(false);
+    });
+  }
+
+  // 1. Focus loss / blur detection (Snipping Tool Win+Shift+S, Alt-Tab, clicking outside)
+  window.addEventListener('blur', () => {
+    setScreenGuard(true);
+  });
+
+  window.addEventListener('focus', () => {
+    setScreenGuard(false);
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible') {
+      setScreenGuard(true);
+    } else if (document.hasFocus()) {
+      setScreenGuard(false);
+    }
+  });
+
+  // 2. Keyboard shortcut protection & clipboard wipe on PrintScreen
+  function clearClipboard() {
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText('').catch(() => {});
+      }
+    } catch (_) {}
+  }
+
+  const handleKeyProtection = (e) => {
+    if (e.key === 'PrintScreen' || e.code === 'PrintScreen') {
+      clearClipboard();
+      setScreenGuard(true, 1800);
+      return;
+    }
+
+    if (e.ctrlKey || e.metaKey) {
+      const key = e.key.toLowerCase();
+      if (key === 'p' || key === 's' || key === 'u') {
+        e.preventDefault();
+        e.stopPropagation();
+        setScreenGuard(true, 1500);
+        return;
+      }
+      if (e.shiftKey && (key === 'i' || key === 'j' || key === 'c')) {
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+    }
+
+    if (e.key === 'F12') {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+  };
+
+  window.addEventListener('keydown', handleKeyProtection, true);
+  window.addEventListener('keyup', (e) => {
+    if (e.key === 'PrintScreen' || e.code === 'PrintScreen') {
+      clearClipboard();
+      setScreenGuard(true, 1800);
+    }
+  }, true);
+
+  // 3. Right-click contextmenu defense
+  window.addEventListener('contextmenu', (e) => {
+    e.preventDefault();
+  });
 })();
