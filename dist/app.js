@@ -1,6 +1,6 @@
-(()=>{
+(() => {
   'use strict';
-  const {shuffle, makeBoard, pick, cleanRecords, dayKey, cleanTiming, beginTiming, finishTiming, elapsedTiming, formatDuration, completionGrade, gradeLimits, cleanItems, awardItem} = QuizCore;
+  const { shuffle, makeBoard, pick, cleanRecords, dayKey, cleanTiming, beginTiming, finishTiming, elapsedTiming, formatDuration, completionGrade, gradeLimits, cleanItems, awardItem } = QuizCore;
   const $ = id => document.getElementById(id);
   let unit = window.UNITS[0];
   let questions = unit.questions;
@@ -24,67 +24,67 @@
   let itemState = cleanItems(null, ids), itemTimer = null;
   const itemMemory = {};
   const itemDefinitions = {
-    reveal: {name:'전체 보기',description:'모든 카드를 2초간 공개합니다.',path:'M2 10h2V8h3V6h10v2h3v2h2v4h-2v2h-3v2H7v-2H4v-2H2z M9 8h6v8H9z',detail:'<path d="M10 9h4v6h-4z" fill="#071020"/><rect x="10" y="9" width="2" height="2" fill="white"/>'},
-    hint: {name:'한 글자',description:'다음 정답 카드 한 장을 2초간 공개합니다.',path:'M8 2h8v2h3v9h-3v4H8v-4H5V4h3z M8 19h8v2H8z M10 22h4v1h-4z',detail:'<path d="M11 6h2v3h3v2h-3v3h-2v-3H8V9h3z" fill="#071020"/>'},
-    erase: {name:'오답 지우기',description:'정답과 무관한 카드 최대 3장을 이번 문제에서 제외합니다.',path:'M17 2h4v4h-2v2h-2v2h-2v2h-4v-2h2V8h2V6h2z M7 11h4v2h3v4h-2v2h-2v2H2v-4h2v-3h3z',detail:'<path d="M5 17h2v3H5z M9 15h2v3H9z" fill="#071020"/><path d="M17 17h3v3h-3z M21 13h2v2h-2z" fill="currentColor"/>'}
+    reveal: { name: '전체 보기', description: '모든 카드를 2초간 공개합니다.', path: 'M2 10h2V8h3V6h10v2h3v2h2v4h-2v2h-3v2H7v-2H4v-2H2z M9 8h6v8H9z', detail: '<path d="M10 9h4v6h-4z" fill="#071020"/><rect x="10" y="9" width="2" height="2" fill="white"/>' },
+    hint: { name: '한 글자', description: '다음 정답 카드 한 장을 2초간 공개합니다.', path: 'M8 2h8v2h3v9h-3v4H8v-4H5V4h3z M8 19h8v2H8z M10 22h4v1h-4z', detail: '<path d="M11 6h2v3h3v2h-3v3h-2v-3H8V9h3z" fill="#071020"/>' },
+    erase: { name: '오답 지우기', description: '정답과 무관한 카드 최대 3장을 이번 문제에서 제외합니다.', path: 'M17 2h4v4h-2v2h-2v2h-2v2h-4v-2h2V8h2V6h2z M7 11h4v2h3v4h-2v2h-2v2H2v-4h2v-3h3z', detail: '<path d="M5 17h2v3H5z M9 15h2v3H9z" fill="#071020"/><path d="M17 17h3v3h-3z M21 13h2v2h-2z" fill="currentColor"/>' }
   };
   function readItems() {
-    try { return cleanItems(JSON.parse(localStorage.getItem(itemKey()) || 'null'),ids); }
-    catch { return cleanItems(itemMemory[memoryKey()],ids); }
+    try { return cleanItems(JSON.parse(localStorage.getItem(itemKey()) || 'null'), ids); }
+    catch { return cleanItems(itemMemory[memoryKey()], ids); }
   }
   function saveItems() {
     itemMemory[memoryKey()] = itemState;
-    try { localStorage.setItem(itemKey(),JSON.stringify(itemState)); }
-    catch { $('storageStatus').textContent='아이템을 저장하지 못했어요 · 이번 화면에서만 유지됩니다.'; }
+    try { localStorage.setItem(itemKey(), JSON.stringify(itemState)); }
+    catch { $('storageStatus').textContent = '아이템을 저장하지 못했어요 · 이번 화면에서만 유지됩니다.'; }
     renderItems();
   }
   function renderItems() {
-    $('itemCount').textContent=`${itemState.inventory.length} / 3`;
-    $('itemSlots').replaceChildren(...Array.from({length:3},(_,index)=>{
-      const type=itemState.inventory[index],definition=itemDefinitions[type];
-      const button=document.createElement('button');
-      button.className=`item-button ${type || 'empty'}`;
-      button.disabled=!definition || locked || !current || selected.length === [...current.answer].length || completed.length === ids.length;
-      if(definition){
-        button.title=definition.description;
-        button.setAttribute('aria-label',`${definition.name}: ${definition.description}`);
-        button.innerHTML=`<svg viewBox="0 0 24 24" aria-hidden="true" shape-rendering="crispEdges"><path fill="currentColor" fill-rule="evenodd" d="${definition.path}"/>${definition.detail}</svg><span>${definition.name}</span>`;
-        button.onclick=()=>useItem(index);
-      } else { button.innerHTML='<span class="empty-plus" aria-hidden="true">+</span><span>빈 슬롯</span>';button.setAttribute('aria-label','빈 아이템 슬롯'); }
+    $('itemCount').textContent = `${itemState.inventory.length} / 3`;
+    $('itemSlots').replaceChildren(...Array.from({ length: 3 }, (_, index) => {
+      const type = itemState.inventory[index], definition = itemDefinitions[type];
+      const button = document.createElement('button');
+      button.className = `item-button ${type || 'empty'}`;
+      button.disabled = !definition || locked || !current || selected.length === [...current.answer].length || completed.length === ids.length;
+      if (definition) {
+        button.title = definition.description;
+        button.setAttribute('aria-label', `${definition.name}: ${definition.description}`);
+        button.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true" shape-rendering="crispEdges"><path fill="currentColor" fill-rule="evenodd" d="${definition.path}"/>${definition.detail}</svg><span>${definition.name}</span>`;
+        button.onclick = () => useItem(index);
+      } else { button.innerHTML = '<span class="empty-plus" aria-hidden="true">+</span><span>빈 슬롯</span>'; button.setAttribute('aria-label', '빈 아이템 슬롯'); }
       return button;
     }));
   }
   function useItem(index) {
     syncDay();
-    if(locked || !current || selected.length === [...current.answer].length || completed.length===ids.length)return;
-    const type=itemState.inventory[index];
-    if(!itemDefinitions[type])return;
-    const buttons=Array.from($('board').children);
-    let targets=type==='hint'?buttons.filter((b,i)=>!selected.includes(i)&&cards[i]===[...current.answer][selected.length]).slice(0,1):
-      type==='erase'?shuffle(buttons.filter((b,i)=>!current.answer.includes(cards[i])&&!b.classList.contains('is-erased'))).slice(0,3):
-      buttons.filter((b,i)=>!selected.includes(i)&&!b.classList.contains('is-erased'));
-    if(!targets.length){$('itemStatus').textContent='지울 오답 카드가 더 없어요. 아이템은 보관됩니다.';return;}
+    if (locked || !current || selected.length === [...current.answer].length || completed.length === ids.length) return;
+    const type = itemState.inventory[index];
+    if (!itemDefinitions[type]) return;
+    const buttons = Array.from($('board').children);
+    let targets = type === 'hint' ? buttons.filter((b, i) => !selected.includes(i) && cards[i] === [...current.answer][selected.length]).slice(0, 1) :
+      type === 'erase' ? shuffle(buttons.filter((b, i) => !current.answer.includes(cards[i]) && !b.classList.contains('is-erased'))).slice(0, 3) :
+        buttons.filter((b, i) => !selected.includes(i) && !b.classList.contains('is-erased'));
+    if (!targets.length) { $('itemStatus').textContent = '지울 오답 카드가 더 없어요. 아이템은 보관됩니다.'; return; }
     clearWrongTimers();
-    buttons.forEach((b,i)=>{if(b.classList.contains('is-wrong')){b.classList.remove('is-wrong','is-flipped');b.setAttribute('aria-label',`${i+1}번 숨겨진 카드`);}});
-    itemState.inventory.splice(index,1);itemState.used++;
-    locked=true;saveItems();SoundFX.play('btn');
-    $('itemStatus').textContent=`${itemDefinitions[type].name} 사용! ${type==='erase'?targets.length+'장의 오답 카드 제외':'2초 동안 위치를 기억하세요.'}`;
-    if(type==='erase') {
-      targets.forEach(b=>{b.classList.add('is-erased');b.disabled=true;b.setAttribute('aria-label','제외된 오답 카드');});
-      locked=false;renderItems();return;
+    buttons.forEach((b, i) => { if (b.classList.contains('is-wrong')) { b.classList.remove('is-wrong', 'is-flipped'); b.setAttribute('aria-label', `${i + 1}번 숨겨진 카드`); } });
+    itemState.inventory.splice(index, 1); itemState.used++;
+    locked = true; saveItems(); SoundFX.play('btn');
+    $('itemStatus').textContent = `${itemDefinitions[type].name} 사용! ${type === 'erase' ? targets.length + '장의 오답 카드 제외' : '2초 동안 위치를 기억하세요.'}`;
+    if (type === 'erase') {
+      targets.forEach(b => { b.classList.add('is-erased'); b.disabled = true; b.setAttribute('aria-label', '제외된 오답 카드'); });
+      locked = false; renderItems(); return;
     }
-    targets.forEach(b=>{b.classList.add('is-flipped','item-revealed');b.setAttribute('aria-label',`힌트 카드 ${cards[buttons.indexOf(b)]}`);});
-    itemTimer=setTimeout(()=>{
-      targets.forEach(b=>{b.classList.remove('is-flipped','item-revealed');b.setAttribute('aria-label',`${buttons.indexOf(b)+1}번 숨겨진 카드`);});
-      itemTimer=setTimeout(()=>{itemTimer=null;locked=false;renderItems();$('itemStatus').textContent='힌트 종료! 기억한 글자를 찾아보세요.';},480);
-    },2000);
+    targets.forEach(b => { b.classList.add('is-flipped', 'item-revealed'); b.setAttribute('aria-label', `힌트 카드 ${cards[buttons.indexOf(b)]}`); });
+    itemTimer = setTimeout(() => {
+      targets.forEach(b => { b.classList.remove('is-flipped', 'item-revealed'); b.setAttribute('aria-label', `${buttons.indexOf(b) + 1}번 숨겨진 카드`); });
+      itemTimer = setTimeout(() => { itemTimer = null; locked = false; renderItems(); $('itemStatus').textContent = '힌트 종료! 기억한 글자를 찾아보세요.'; }, 480);
+    }, 2000);
   }
   function rewardItem() {
-    const reward=awardItem(itemState,current.id,Math.random(),Math.random());
-    itemState=reward.state;saveItems();
-    $('itemStatus').textContent=reward.item?`${itemDefinitions[reward.item].name} 획득! 다음 문제에서 사용하세요.`:
-      itemState.inventory.length===3?'보관함이 가득 찼어요! 최대 3개까지 보관합니다.':'이번에는 아이템이 없어요. 다음 문제에 도전하세요!';
-    if(reward.item){$('itemSlots').classList.remove('item-awarded');void $('itemSlots').offsetWidth;$('itemSlots').classList.add('item-awarded');}
+    const reward = awardItem(itemState, current.id, Math.random(), Math.random());
+    itemState = reward.state; saveItems();
+    $('itemStatus').textContent = reward.item ? `${itemDefinitions[reward.item].name} 획득! 다음 문제에서 사용하세요.` :
+      itemState.inventory.length === 3 ? '보관함이 가득 찼어요! 최대 3개까지 보관합니다.' : '이번에는 아이템이 없어요. 다음 문제에 도전하세요!';
+    if (reward.item) { $('itemSlots').classList.remove('item-awarded'); void $('itemSlots').offsetWidth; $('itemSlots').classList.add('item-awarded'); }
   }
 
   const key = () => `star-memory-v1:${today}${unitSuffix()}${attemptSuffix()}`;
@@ -99,7 +99,7 @@
     try {
       const value = JSON.parse(localStorage.getItem(historyKey()) || '[]');
       return Array.isArray(value) ? value.filter(item => item && typeof item === 'object').map(item => ({
-        itemsUsed: Number.isSafeInteger(item.itemsUsed) && item.itemsUsed>=0 ? item.itemsUsed : null,
+        itemsUsed: Number.isSafeInteger(item.itemsUsed) && item.itemsUsed >= 0 ? item.itemsUsed : null,
         id: typeof item.id === 'string' ? item.id : '',
         completed: cleanRecords(item.completed, ids),
         timing: cleanTiming(item.timing, ids)
@@ -115,7 +115,7 @@
       itemsUsed: itemState.used,
       id: attemptId,
       completed: cleanRecords([...read(), ...completed], ids),
-      timing: cleanTiming({...timing, finishedAt: timing.startedAt === null ? null : timing.finishedAt ?? Date.now()}, ids)
+      timing: cleanTiming({ ...timing, finishedAt: timing.startedAt === null ? null : timing.finishedAt ?? Date.now() }, ids)
     };
     const history = timing.startedAt !== null || snapshot.completed.length ? [...previous.filter(entry => entry.id !== attemptId), snapshot] : previous;
     const newId = window.crypto.randomUUID();
@@ -128,7 +128,7 @@
       return;
     }
     attemptId = newId;
-    itemState = cleanItems(null,ids);
+    itemState = cleanItems(null, ids);
     completed = [];
     timing = cleanTiming(null, ids);
     queue = [];
@@ -235,7 +235,7 @@
           osc.start(t);
           osc.stop(t + 0.05);
         }
-      } catch (e) {}
+      } catch (e) { }
     },
     playCascade(index, total) {
       if (this.muted) return;
@@ -257,7 +257,7 @@
         gain.gain.exponentialRampToValueAtTime(0.001, t + 0.09);
         osc.start(t);
         osc.stop(t + 0.09);
-      } catch (e) {}
+      } catch (e) { }
     },
     playReadyGo() {
       if (this.muted) return;
@@ -277,7 +277,7 @@
         gain.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
         osc.start(t);
         osc.stop(t + 0.22);
-      } catch (e) {}
+      } catch (e) { }
     },
     playMission() {
       if (this.muted) return;
@@ -299,7 +299,7 @@
           osc.start(t + idx * 0.07);
           osc.stop(t + idx * 0.07 + 0.18);
         });
-      } catch (e) {}
+      } catch (e) { }
     }
   };
 
@@ -432,7 +432,7 @@
       highScore = score;
       try {
         localStorage.setItem(highScoreKey(), String(highScore));
-      } catch {}
+      } catch { }
     }
     updateHUD();
   }
@@ -464,7 +464,7 @@
   function saveTiming() {
     const stored = readTiming();
     // Keep the first completion from another open tab, too.
-    timing.durations = {...timing.durations, ...stored.durations};
+    timing.durations = { ...timing.durations, ...stored.durations };
     if (stored.startedAt !== null) timing.startedAt = Math.min(timing.startedAt ?? stored.startedAt, stored.startedAt);
     if (stored.finishedAt !== null) {
       timing.finishedAt = stored.finishedAt;
@@ -750,7 +750,7 @@
       showFloatingScore($('slots'), `STAGE CLEAR! +${bonus} PTS!`);
 
       const firstAllClear = completed.length < ids.length;
-      if (firstAllClear && completed.length < ids.length-1) rewardItem();
+      if (firstAllClear && completed.length < ids.length - 1) rewardItem();
       renderItems();
       save();
       saveHighScore();
@@ -838,8 +838,8 @@
     if (!queue.length) {
       const remaining = questions.filter(q => !completed.includes(q.id));
       const pool = remaining.length ? remaining : questions;
-      // pop() consumes the end: reverse numeric order gives unit 8 ascending IDs.
-      queue = unit.id === '8' ? [...pool].sort((a, b) => b.id - a.id) : shuffle(pool);
+      // pop() consumes the end: reverse numeric order gives unit 8 & 9 ascending IDs.
+      queue = (unit.id === '8' || unit.id === '9') ? [...pool].sort((a, b) => b.id - a.id) : shuffle(pool);
       round = 0;
     }
 
@@ -869,7 +869,7 @@
     renderBoard();
     renderSlots();
     renderItems();
-    $('itemStatus').textContent='Ready! 힌트가 끝나면 아이템을 사용할 수 있어요.';
+    $('itemStatus').textContent = 'Ready! 힌트가 끝나면 아이템을 사용할 수 있어요.';
 
     // 2. Question appears first with cyber typewriter & mission chime!
     $('feedback').textContent = `📡 [ NEW MISSION ] 문제를 확인하세요! (${current.answer.length}글자)`;
@@ -901,7 +901,7 @@
     $('completionItems').textContent = `아이템 사용 ${itemState.used}회`;
     $('completionScore').textContent = `${score.toLocaleString()} PTS`;
     const limits = gradeLimits(ids.length);
-    $('gradeCriteria').textContent = limits.map(([label,minutes],i)=>`${label} ${i ? limits[i-1][1]+'분 초과 ~ ' : ''}${minutes}분 이내`).join(' · ') + ` · D ${limits[limits.length-1][1]}분 초과`;
+    $('gradeCriteria').textContent = limits.map(([label, minutes], i) => `${label} ${i ? limits[i - 1][1] + '분 초과 ~ ' : ''}${minutes}분 이내`).join(' · ') + ` · D ${limits[limits.length - 1][1]}분 초과`;
     if (!$('completion').open) $('completion').showModal();
   }
 
@@ -977,14 +977,14 @@
       if (saved === 'muted') {
         SoundFX.muted = true;
       }
-    } catch {}
+    } catch { }
     updateSoundUI();
 
     $('soundToggle').onclick = () => {
       SoundFX.muted = !SoundFX.muted;
       try {
         localStorage.setItem(soundKey(), SoundFX.muted ? 'muted' : 'enabled');
-      } catch {}
+      } catch { }
       if (!SoundFX.muted) {
         SoundFX.play('btn');
       }
